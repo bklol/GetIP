@@ -29,13 +29,10 @@ public void OnPluginStart()
 	int pszIP = SDKCall(hMalloc, pMemAlloc, 0x60);	
 	PrintToServer("pszIP is %x", view_as<Address>(pszIP));
 	
-	Address SteamGameServer = GameConfGetAddress(hGameConf, "SteamGameServer");
+	Address SteamGameServer = Dereference(GameConfGetAddress(hGameConf, "SteamGameServer"));
 	PrintToServer("SteamGameServer is %x", SteamGameServer);	
-	
-	Address ECX = Dereference(SteamGameServer); //MOV        ECX,dword ptr [DAT_1080c79c] 
-	PrintToServer("ECX is %x", ECX);
-	
-	Address EAX = Dereference(EAX);//MOV        EAX,dword ptr [ECX]
+
+	Address EAX = Dereference(SteamGameServer);//MOV        EAX,dword ptr [ECX]
 	PrintToServer("EAX is %x", EAX);
 	
 	Address GetPublicIP = Dereference(EAX, 0x84);//CALL       dword ptr [EAX + 0x84]
@@ -49,7 +46,7 @@ public void OnPluginStart()
 	if(!hGetPublicIP) 
 		SetFailState("Could not initialize call to hGetPublicIP");
 		
-	SDKCall(hGetPublicIP, pszIP, EAX);
+	SDKCall(hGetPublicIP, pszIP, SteamGameServer);
 	int ip = LoadFromAddress(view_as<Address>(pszIP), NumberType_Int32);
 	PrintToServer("Public IP is %d.%d.%d.%d\n", (ip >> 24) & 0x000000FF, (ip >> 16) & 0x000000FF, (ip >> 8) & 0x000000FF, ip & 0x000000FF );
 }
