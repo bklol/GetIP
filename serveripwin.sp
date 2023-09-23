@@ -27,16 +27,9 @@ public void OnPluginStart()
 	Handle hMalloc = EndPrepSDKCall();	
 	
 	int pszIP = SDKCall(hMalloc, pMemAlloc, 0x60);	
-	PrintToServer("pszIP is %x", view_as<Address>(pszIP));
 	
 	Address SteamGameServer = Dereference(GameConfGetAddress(hGameConf, "SteamGameServer"));
-	PrintToServer("SteamGameServer is %x", SteamGameServer);	
-
-	Address EAX = Dereference(SteamGameServer);
-	PrintToServer("EAX is %x", EAX);
-	
-	Address GetPublicIP = Dereference(EAX, 0x84);
-	PrintToServer("GetPublicIP is %x", GetPublicIP);
+	Address GetPublicIP = Dereference(Dereference(SteamGameServer), 0x84);
 	
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetAddress(GetPublicIP);
