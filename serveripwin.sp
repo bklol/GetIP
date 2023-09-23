@@ -32,10 +32,10 @@ public void OnPluginStart()
 	Address SteamGameServer = Dereference(GameConfGetAddress(hGameConf, "SteamGameServer"));
 	PrintToServer("SteamGameServer is %x", SteamGameServer);	
 
-	Address EAX = Dereference(SteamGameServer);//MOV        EAX,dword ptr [ECX]
+	Address EAX = Dereference(SteamGameServer);
 	PrintToServer("EAX is %x", EAX);
 	
-	Address GetPublicIP = Dereference(EAX, 0x84);//CALL       dword ptr [EAX + 0x84]
+	Address GetPublicIP = Dereference(EAX, 0x84);
 	PrintToServer("GetPublicIP is %x", GetPublicIP);
 	
 	StartPrepSDKCall(SDKCall_Raw);
