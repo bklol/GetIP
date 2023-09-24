@@ -15,32 +15,18 @@ public void OnPluginStart()
 		SetFailState("where is steamserver.games ?");
 		return;
 	}
-	
-	Address pMemAlloc = hGameConf.GetAddress("g_pMemAlloc");
-	if(pMemAlloc == Address_Null)
-		SetFailState("Couldn't get g_pMemAlloc address!");
 
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetVirtual(hGameConf.GetOffset("Malloc"));
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	Handle hMalloc = EndPrepSDKCall();	
-	
-	int pszIP = SDKCall(hMalloc, pMemAlloc, 0x60);	
-	
 	Address SteamGameServer = Dereference(GameConfGetAddress(hGameConf, "SteamGameServer"));
 	Address GetPublicIP = Dereference(Dereference(SteamGameServer), 0x84);
 	
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetAddress(GetPublicIP);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	Handle hGetPublicIP = EndPrepSDKCall();
 
 	if(!hGetPublicIP) 
 		SetFailState("Could not initialize call to hGetPublicIP");
-		
-	SDKCall(hGetPublicIP, pszIP, SteamGameServer);
-	int ip = LoadFromAddress(view_as<Address>(pszIP), NumberType_Int32);
+	int ip = LoadFromAddress(SDKCall(hGetPublicIP, SteamGameServer), NumberType_Int32);
 	PrintToServer("Public IP is %d.%d.%d.%d\n", (ip >> 24) & 0x000000FF, (ip >> 16) & 0x000000FF, (ip >> 8) & 0x000000FF, ip & 0x000000FF );
 }
 
