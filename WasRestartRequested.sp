@@ -15,13 +15,28 @@ public void OnPluginStart()
 		SetFailState("where is steamserver.games ?");
 		return;
 	}
-	Address Steam3Server = GameConfGetAddress(hGameConf, "Steam3Server");
-	if (Steam3Server == Address_Null) 
-		SetFailState("Failed to get address: Steam3Server");
+	Address SteamGameServer;
+	char szBuf[14];
+	GetCommandLine(szBuf, sizeof szBuf);
+	bool g_bWindows = strcmp(szBuf, "./srcds_linux") != 0;
+	if(!g_bWindows)
+	{
+		Address Steam3Server = GameConfGetAddress(hGameConf, "Steam3Server");
+		if (Steam3Server == Address_Null) 
+			SetFailState("Failed to get address: Steam3Server");
+			
+		SteamGameServer = Dereference(Steam3Server, 0x4);
+	}
+	else
+	{
+		Address Steam3Server = GameConfGetAddress(hGameConf, "SteamGameServer");
+		if (Steam3Server == Address_Null) 
+			SetFailState("Failed to get address: Steam3Server");
+			
+		SteamGameServer = Dereference(Steam3Server);
 		
-	Address SteamGameServer = Dereference(Steam3Server, 0x4);
+	}
 	Address WasRestartRequested = Dereference(Dereference(SteamGameServer), 0x2c);
-	
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetAddress(WasRestartRequested);
 	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
